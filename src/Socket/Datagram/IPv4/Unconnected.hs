@@ -56,7 +56,8 @@ openOnDevice ::
   -> PM.ByteArray -- ^ Local network interface name
   -> IO (Either SocketException (Socket 'Unconnected ('SCK.Internet 'SCK.V4), Word16))
 openOnDevice !local !intf = do
-  e1 <- S.uninterruptibleSocket S.Internet
+  e1 <- S.uninterruptibleSocket
+    S.internet
     (L.applySocketFlags (L.closeOnExec <> L.nonblocking) S.datagram)
     S.defaultProtocol
   case e1 of
@@ -77,7 +78,8 @@ open ::
      -- ^ Address and port to use
   -> IO (Either SocketException (Socket 'Unconnected ('SCK.Internet 'SCK.V4), Word16))
 open !local = do
-  e1 <- S.uninterruptibleSocket S.Internet
+  e1 <- S.uninterruptibleSocket
+    S.internet
     (L.applySocketFlags (L.closeOnExec <> L.nonblocking) S.datagram)
     S.defaultProtocol
   case e1 of

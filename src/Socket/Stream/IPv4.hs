@@ -109,7 +109,8 @@ newtype Listener = Listener Fd
 listen :: Peer -> IO (Either SocketException (Listener, Word16))
 listen endpoint@Peer{port = specifiedPort} = do
   debug ("listen: opening listen " ++ describeEndpoint endpoint)
-  e1 <- S.uninterruptibleSocket S.Internet
+  e1 <- S.uninterruptibleSocket
+    S.internet
     (L.applySocketFlags (L.closeOnExec <> L.nonblocking) S.stream)
     S.defaultProtocol
   debug ("listen: opened listen " ++ describeEndpoint endpoint)
@@ -672,7 +673,8 @@ beforeEstablishment :: Peer -> IO (Either (ConnectException ('Internet 'V4) i) (
 {-# INLINE beforeEstablishment #-}
 beforeEstablishment !remote = do
   debug ("beforeEstablishment: opening connection " ++ show remote)
-  e1 <- S.uninterruptibleSocket S.Internet
+  e1 <- S.uninterruptibleSocket
+    S.internet
     (L.applySocketFlags (L.closeOnExec <> L.nonblocking) S.stream)
     S.defaultProtocol
   debug ("beforeEstablishment: opened connection " ++ show remote)
@@ -930,9 +932,9 @@ systemdListener :: IO (Either SystemdException Listener)
 systemdListener = L.listenFds 1 >>= \case
   Left (Errno e) -> pure (Left (SystemdErrno e))
   Right n -> case n of
-    1 -> L.isSocket fd0 S.Internet S.stream 1 >>= \case
       Left (Errno e) -> pure (Left (SystemdErrno e))
       Right r -> case r of
+    1 -> L.isSocket fd0 S.internet S.stream 1 >>= \case
         0 -> pure (Left SystemdDescriptorInfo)
         _ -> F.uninterruptibleGetStatusFlags fd0 >>= \case
           Left (Errno e) -> pure (Left (SystemdFnctlErrno e))
